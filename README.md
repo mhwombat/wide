@@ -12,8 +12,6 @@ You might be interested in *wIDE*, the *Wombat Integrated Development Environmen
 
 5. You're familiar with Unix shell scripts. (wIDE is a small shell script, so it's easy to customise and extend.)
 
-The current version is *[http://code.google.com/p/wide/downloads/detail?name=wide-1.5.tar&can=2&q= v1.5]* and the instructions are in the *[http://code.google.com/p/wide/wiki/GettingStarted wiki]*.
-
 
 # Prerequisites
 
