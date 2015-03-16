@@ -1,17 +1,32 @@
-# How to use wIDE
+# Why use wIDE?
 
-## Prerequisites
+You might be interested in *wIDE*, the *Wombat Integrated Development Environment*, if:
+
+1. You want an ultra-lightweight IDE.
+
+2. You use an Xwindow manager that automatically lays out your applications. (I use Xmonad, but you should be able to use wIDE with any Xwindow manager.)
+
+3. You want to edit files using the editor and terminal of your choice.
+
+4. You don't need an IDE to find function, variable and class definitions for you. (I might add ctags support later, but for now, wIDE is probably best suited for one-person projects.)
+
+5. You're familiar with Unix shell scripts. (wIDE is a small shell script, so it's easy to customise and extend.)
+
+The current version is *[http://code.google.com/p/wide/downloads/detail?name=wide-1.5.tar&can=2&q= v1.5]* and the instructions are in the *[http://code.google.com/p/wide/wiki/GettingStarted wiki]*.
+
+
+# Prerequisites
 
 1. Required: *dmenu*, *xsel*, the editor of your choice
 1. Optional but recommended: A lightweight browser like [http://surf.suckless.org/ surf]
 
-## Installation
+# Installation
 
   * Download and extract.
 
   * The file *wombat* is a shell script. Make it executable and place it somewhere on your path. If you want to use an editor other than kwrite, modify the script accordingly. (Look for the word "CUSTOMISE" to find things you might want to change.)
 
-## More customisation (Optional)
+# More customisation (Optional)
 
   * You might want to add the following to your .bashrc or .bash_aliases file: *`alias wls="wombat ls"`*
 
@@ -30,7 +45,7 @@ main =
         ]
 }}}
 
-## Using wIDE
+# Using wIDE
 
 Open a terminal or console.
 
