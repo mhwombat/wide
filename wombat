@@ -1,0 +1,197 @@
+#!/bin/bash
+
+# Prerequisites: dmenu, xsel, and the editor of your choice.
+# Look for the work "CUSTOMISE" to find things you might want to change.
+
+# Edit a file
+wombatEditFile () {
+    IFS=: read FILE LINE COL <<< "`wombatChooseFile`"
+
+    if [ -z "${FILE}" ]; then
+      echo "No file selected"
+      exit
+    fi
+
+    # CUSTOMISE: Use your favourite editor.
+    #
+    # Ex: scite "-open:${FILE}" -goto:${LINE:-1}:${COL:-1} &
+    # Ex: gedit ${FILE} +${LINE:-1}:${COL:-1} &
+    # Ex: kwrite ${FILE} --line ${LINE:-1} --column ${COL:-1} &
+    # Ex: medit ${FILE} --line ${LINE:-1} &
+    # Ex: scribes ${FILE} &
+    #
+    kwrite ${FILE} --line ${LINE:-1} --column ${COL:-1} &
+}
+
+# List the "interesting" files in or below the current directory
+wombatListFiles () {
+    # CUSTOMISE: Modify the following line to filter out uninteresting files
+    find . \( -name cabal-dev -o -name dist \) -prune -o ! -type d -print | grep -E -v -e '/\.|~$|tags|TAGS' | sed 's!^./!!' | sort
+}
+
+
+# Try to guess what file the user wants to work with. If we can't guess, then
+# display a menu and let the user choose.
+wombatChooseFile ()
+{
+    DIR=`wombatGetDesktopDir`
+    DMENU_ARGS="-b -nf green -nb black -sf yellow -sb black"
+
+    # Get the current selection
+    SELECTION=`xsel -o`
+
+    # If the selection contains a space, it probably isn't a filename; ignore it.
+    if [ `expr index "${SELECTION}" " "` -gt 0 ]; then
+      SELECTION=''
+    fi
+
+    # If the selection contains colons, they might indicate line and column numbers
+    # (i.e., from a compiler error message). Strip everything after the colon.
+    IFS=: read SELECTION LINE COL _ <<< "${SELECTION}"
+
+    # Maybe it's a full path to a file the user wants to edit
+    if [ -f "${SELECTION}" ]; then
+      echo ${SELECTION}:${LINE:-1}:${COL:-1}
+      exit
+    fi
+    # echo "Not a full path"
+
+    cd ${DIR}
+
+    # Maybe it's a path from this directory
+    if [ -f "${DIR}/${SELECTION}" ]; then
+      echo ${DIR}/${SELECTION}:${LINE:-1}:${COL:-1}
+      exit
+    fi
+    # echo "Not a relative path"
+
+    # Maybe it's just the filename, or part of a filename. Can we find it?
+
+    if [ -z "${FILE}" ]; then
+        FILES=`wombatListFiles`
+        FILECOUNT=0
+    else
+        FILES=`wombatListFiles | grep "${SELECTION}"`
+        FILECOUNT=`wombatListFiles | grep "${SELECTION}" | wc -l`
+    fi
+
+    case ${FILECOUNT} in
+      1 )
+          # This must be the one the user wants
+          FILE=$FILES
+          ;;
+      * )
+          # Let the user choose
+          FILE=${DIR}/`echo ${FILES} | dmenu -b -nf green -nb black -sf yellow -sb black`
+          if [ ! -f "${FILE}" ]; then
+            FILE="" # Get rid of the directory we tacked on
+          fi
+          ;;
+    esac
+    echo ${FILE}:${LINE:-1}:${COL:-1}
+}
+
+
+# Save the directory that the current desktop is associated with
+wombatSetDesktopDir () {
+    desktop=`xprop -root | grep ^_NET_CURRENT_DESKTOP | sed 's/.* = //'`
+    dir=`pwd`
+    wombatSetVar "DESKTOP_${desktop}.dir" ${dir}
+}
+
+
+# Recall the directory that the current desktop is associated with
+wombatGetDesktopDir () {
+    desktop=`xprop -root | grep ^_NET_CURRENT_DESKTOP | sed 's/.* = //'`
+    wombatGetVar "DESKTOP_${desktop}.dir"
+}
+
+
+# Search Hoogle for the current selection
+wombatSearchHoogle () {
+    # Get the current selection
+    SELECTION=`xsel -o`
+
+	# Search Hoogle
+    # CUSTOMISE: Modify the following line to use a different browser
+    surf "http://www.haskell.org/hoogle/?hoogle=${SELECTION}" &
+}
+
+# Search Hayoo for the current selection
+wombatSearchHayoo () {
+    # Get the current selection
+    SELECTION=`xsel -o`
+
+	# Search Hayoo
+    # CUSTOMISE: Modify the following line to use a different browser
+    surf "http://holumbus.fh-wedel.de/hayoo/hayoo.html?query=${SELECTION}" &
+}
+
+# Save a variable so it is available to later invocations
+wombatSetVar () {
+    VAR=$1
+    VALUE=$2
+
+    if [ ! -f ~/.wombat ]; then
+      touch ~/.wombat
+    fi
+
+    mv ~/.wombat ~/.wombat.bak
+
+    grep -v "$VAR = " ~/.wombat.bak > ~/.wombat
+    echo "$VAR = $VALUE" >> ~/.wombat
+}
+
+# Retrieve a variable saved earlier
+wombatGetVar () {
+    VAR=$1
+    VALUE=$2
+
+    if [ -f ~/.wombat ]; then
+      grep "$VAR = " ~/.wombat | sed "s/$VAR = //"
+    else
+      echo ""
+    fi
+}
+
+#
+# Main
+#
+
+case $1 in
+  edit )
+      # Edit a file
+      wombatEditFile
+      ;;
+  ls )
+      # List all the "interesting" files in this directory and below
+      wombatListFiles
+      ;;
+  dir )
+      # Associate the current working directory with this desktop
+      wombatSetDesktopDir
+      ;;
+  hoogle )
+      # Do a Hoogle search
+      wombatSearchHoogle
+      ;;
+  hayoo )
+      # Do a Hayoo search
+      wombatSearchHayoo
+      ;;
+  * )
+      # Display the help message
+      echo "Usage: $0 edit        Edit a file. If the current selection is a"
+      echo "                      filename, edit it, otherwise prompt the user"
+      echo "                      for a file to edit. The selection can include"
+      echo "                      line and column information, e.g., "
+      echo "                      'myprog.c:8:15:'; the cursor will be set to"
+      echo "                      this location."
+      echo "       $0 ls          List all the "interesting" files in this"
+      echo "                      directory and below"
+      echo "       $0 dir         Associate the current working directory with"
+      echo "                      this desktop"
+      ;;
+esac
+
+
