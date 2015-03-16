@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-Required: *dmenu*, *xsel*, the editor of your choice
-Optional but recommended: A lightweight browser like [http://surf.suckless.org/ surf]
+1. Required: *dmenu*, *xsel*, the editor of your choice
+1. Optional but recommended: A lightweight browser like [http://surf.suckless.org/ surf]
 
 ## Installation
 
