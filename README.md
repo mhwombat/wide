@@ -30,7 +30,7 @@ You might be interested in *wIDE*, the *Wombat Integrated Development Environmen
 
   * If you use Xmonad, you can modify your *`xmonad.hs`* file to map a key to the *`wombat edit`* command. Here's an example which maps it to the *Windows+w* combination.
 
-{{{
+```
 main =
    xmonad $ desktopConfig
     {
@@ -41,7 +41,7 @@ main =
         , ((mod4Mask,               xK_w        ), spawn "wombat edit" )
         -- ...other stuff...
         ]
-}}}
+```
 
 # Using wIDE
 
